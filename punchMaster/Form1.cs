@@ -32,9 +32,9 @@ namespace punchMaster
             SqlConnection conn = new SqlConnection(ConnectionStrings.ConnectionString);
             conn.Open();
             SqlCommand cmd = new SqlCommand("select COALESCE(finn_count,0),  COALESCE(rainer_count,0),  COALESCE(both_count ,0) from dbo.doors_programmed_to_machine where date_sent = CAST(getdate() as date)", conn);
-            
 
-         
+
+
 
             SqlDataReader reader = cmd.ExecuteReader();
 
@@ -50,8 +50,8 @@ namespace punchMaster
 
 
 
-           
-          
+
+
 
 
             Func<ChartPoint, string> labelPoint = chartPoint =>
@@ -92,19 +92,37 @@ namespace punchMaster
 
 
 
-            pieChart1.LegendLocation = LegendLocation.Bottom;
-            DefaultLegend customLegend = new DefaultLegend();
-            customLegend.BulletSize = 40;
-            customLegend.FontSize = 40;
-            //customLegend.Foreground = Brushes.White;
-            customLegend.Orientation = System.Windows.Controls.Orientation.Horizontal;
+                pieChart1.LegendLocation = LegendLocation.Bottom;
+                DefaultLegend customLegend = new DefaultLegend();
+                customLegend.BulletSize = 40;
+                customLegend.FontSize = 40;
+                //customLegend.Foreground = Brushes.White;
+                customLegend.Orientation = System.Windows.Controls.Orientation.Horizontal;
 
-            pieChart1.DefaultLegend = customLegend;
+                pieChart1.DefaultLegend = customLegend;
 
             }
             catch
             { }
+            reader.Close();
 
+
+
+            string sql = "select coalesce(finn,0),coalesce(yawei,0),coalesce(both,0) from dbo.punch_master";
+            string finn2 = "", rainer2 = "", both2 = "";
+            DataTable dt = new DataTable();
+            SqlCommand cmd2 = new SqlCommand("select coalesce(finn, 0), coalesce(yawei, 0), coalesce(both, 0) from dbo.punch_master", conn);
+
+            SqlDataReader reader2 = cmd2.ExecuteReader();
+
+
+            while (reader2.Read())
+            {
+                finn2 = reader2[0].ToString();
+                rainer2 = reader2[1].ToString();
+                both2 = reader2[2].ToString();
+
+            }
 
 
 
@@ -122,7 +140,7 @@ namespace punchMaster
                     new PieSeries
                         {
                             Title = " ",
-                            Values = new ChartValues<double> { 6 },
+                            Values = new ChartValues<double> { Convert.ToDouble(finn2) },
                             PushOut = 15,
                             DataLabels = true,
                             LabelPoint = labelPoint2,
@@ -131,17 +149,17 @@ namespace punchMaster
                     new PieSeries
                         {
                             Title = "TARGET",
-                            Values = new ChartValues<double> { 4 },
+                            Values = new ChartValues<double> { Convert.ToDouble(rainer2) },
                             DataLabels = true,
                             LabelPoint = labelPoint2
                         },
-                    //new PieSeries
-                    //    {
-                    //        Title = "Both",
-                    //        Values = new ChartValues<double> { Convert.ToDouble(both) },
-                    //        DataLabels = true,
-                    //        LabelPoint = labelPoint
-                    //    },
+                    new PieSeries
+                        {
+                            Title = " ",
+                            Values = new ChartValues<double> { Convert.ToDouble(both2) },
+                            DataLabels = true,
+                            LabelPoint = labelPoint
+                        },
 
                 };
                 pieChart2.LegendLocation = LegendLocation.Bottom;
